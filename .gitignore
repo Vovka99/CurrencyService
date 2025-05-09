@@ -1,0 +1,7 @@
+bin/
+obj/
+/packages/
+
+.idea/
+*.sln.iml
+_ReSharper*/
