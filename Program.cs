@@ -1,4 +1,5 @@
 using CurrencyService.HttpClients;
+using CurrencyService.Repositories;
 using CurrencyService.Services;
 using CurrencyService.Services.Impl;
 
@@ -11,6 +12,9 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<ICurrencyRateApiClient, NBUApiClient>();
 builder.Services.AddScoped<ICurrencyRateService, CurrencyRateService>();
+
+builder.Services.AddScoped<ICurrencyRateRepository, CurrencyRateRepository>();
+
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
