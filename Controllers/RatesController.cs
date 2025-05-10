@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CurrencyService.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v1/[controller]")]
 public class RatesController : ControllerBase
 {
     private readonly ICurrencyRateService _currencyRateService;
