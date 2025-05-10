@@ -13,6 +13,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<ICurrencyRateApiClient, NBUApiClient>();
 builder.Services.AddScoped<ICurrencyRateService, CurrencyRateService>();
+builder.Services.AddScoped<IDatabaseInitializer, PostgresDatabaseInitializer>();
 
 builder.Services.AddScoped<ICurrencyRateRepository, CurrencyRateRepository>();
 
@@ -35,5 +36,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+using var serviceScope = app.Services.CreateScope();
+var dbInitializer = serviceScope.ServiceProvider.GetRequiredService<IDatabaseInitializer>();
+await dbInitializer.InitializeAsync();
 
 app.Run();
