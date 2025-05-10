@@ -1,3 +1,4 @@
+using CurrencyService.BackgroundServices;
 using CurrencyService.HttpClients;
 using CurrencyService.Repositories;
 using CurrencyService.Services;
@@ -14,6 +15,8 @@ builder.Services.AddScoped<ICurrencyRateApiClient, NBUApiClient>();
 builder.Services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 
 builder.Services.AddScoped<ICurrencyRateRepository, CurrencyRateRepository>();
+
+builder.Services.AddHostedService<CurrencyRatesFetcher>();
 
 builder.Services.AddHttpClient();
 
