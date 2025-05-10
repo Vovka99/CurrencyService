@@ -25,7 +25,7 @@ public class RatesController : ControllerBase
         }
         
         var rate = await _currencyRateService.GetRateAsync(date.Value, cancellationToken);
-        return Ok(rate);
+        return Ok(new { Rate = rate });
     }
 
     [HttpGet("average")]
@@ -42,6 +42,6 @@ public class RatesController : ControllerBase
         }
         
         var averageRate = await _currencyRateService.GetAverageRateAsync(start.Value, end.Value, cancellationToken);
-        return Ok(averageRate);
+        return Ok(new { Rate = averageRate });
     }
 }
