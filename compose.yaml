@@ -2,7 +2,7 @@
   app:
     container_name: currency-service
     build:
-      context: .
+      context: ./CurrencyService
       dockerfile: Dockerfile
     depends_on:
       - postgres_db
