@@ -15,7 +15,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
     public async Task<CurrencyRate> GetAsync(DateTime date, CancellationToken cancellationToken)
     {
         const string sql = """
-                           SELECT date, rate, currency_code
+                           SELECT date, rate, currency_code AS CurrencyCode
                            FROM currency_rates
                            WHERE date = @date
                            """;
