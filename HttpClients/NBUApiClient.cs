@@ -26,18 +26,23 @@ public class NBUApiClient : ICurrencyRateApiClient
         
         if (!response.IsSuccessStatusCode)
         {
-            throw new HttpRequestException($"Unable to get current rate: {response.StatusCode}");
+            throw new HttpRequestException($"Unable to get current rates: {response.StatusCode}");
         }
 
         var responseString = await response.Content.ReadAsStringAsync();
         var rates = JsonSerializer.Deserialize<List<NbuCurrencyRateDto>>(responseString,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        
-        return rates?.Select(r => new CurrencyRate
+
+        if (rates == null)
+        {
+            throw new InvalidOperationException("Invalid data received from NBU");
+        }
+
+        return rates.Select(r => new CurrencyRate
         {
             CurrencyCode = r.Cc,
             Rate = r.Rate,
             Date = DateTime.ParseExact(r.ExchangeDate,"dd.MM.yyyy", CultureInfo.InvariantCulture)
-        }).ToList() ?? [];
+        }).ToList();
     }
 }
