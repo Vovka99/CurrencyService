@@ -21,7 +21,7 @@ public class RatesController : ControllerBase
 
         if (date.Value.Date > DateTime.UtcNow.Date)
         {
-            return BadRequest("Date cannot be greater than current date");
+            return BadRequest(new ProblemDetails { Detail = "Date cannot be greater than current date" });
         }
         
         var rate = await _currencyRateService.GetRateAsync(date.Value, cancellationToken);
@@ -33,12 +33,12 @@ public class RatesController : ControllerBase
     {
         if (start == null || end == null)
         {
-            return BadRequest("Start and end dates are required");
+            return BadRequest(new ProblemDetails { Detail = "Start and end dates are required" });
         }
         
         if (start.Value > end.Value)
         {
-            return BadRequest("Start date cannot be greater than the end date");
+            return BadRequest(new ProblemDetails { Detail = "Start date cannot be greater than the end date" });
         }
         
         var averageRate = await _currencyRateService.GetAverageRateAsync(start.Value, end.Value, cancellationToken);
