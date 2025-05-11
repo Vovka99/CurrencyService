@@ -16,13 +16,23 @@ public class NBUApiClient : ICurrencyRateApiClient
         _httpClient = httpClient;
     }
 
-    public async Task<List<CurrencyRate>> GetCurrencyRatesAsync(DateTime startDate, DateTime endDate)
+    public async Task<List<CurrencyRate>> GetCurrencyRatesAsync(DateTime? startDate, DateTime? endDate = null)
     {
-        var start = startDate.ToString("yyyyMMdd");
-        var end = endDate.ToString("yyyyMMdd");
+        var url = "https://bank.gov.ua/NBU_Exchange/exchange_site?";
 
-        var response = await _httpClient.GetAsync(
-            $"https://bank.gov.ua/NBU_Exchange/exchange_site?start={start}&end={end}&valcode={CURRENCY_CODE}&sort=exchangedate&order=desc&json");
+        if (startDate.HasValue)
+        {
+            url += $"start={startDate.Value:yyyyMMdd}&";
+        }
+
+        if (endDate.HasValue)
+        {
+            url += $"end={endDate.Value:yyyyMMdd}&";
+        }
+
+        url += $"&valcode={CURRENCY_CODE}&sort=exchangedate&order=desc&json";
+
+        var response = await _httpClient.GetAsync(url);
         
         if (!response.IsSuccessStatusCode)
         {
