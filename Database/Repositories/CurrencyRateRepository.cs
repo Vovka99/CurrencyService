@@ -1,21 +1,15 @@
 using CurrencyService.Models;
 using Dapper;
-using Npgsql;
 
 namespace CurrencyService.Database.Repositories;
 
 public class CurrencyRateRepository : ICurrencyRateRepository
 {
-    private readonly IConfiguration _configuration;
-
-    public CurrencyRateRepository(IConfiguration configuration)
+    private readonly IDbConnectionFactory _dbConnectionFactory;
+    
+    public CurrencyRateRepository(IDbConnectionFactory dbConnectionFactory)
     {
-        _configuration = configuration;
-    }
-
-    private NpgsqlConnection GetConnection()
-    {
-        return new NpgsqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        _dbConnectionFactory = dbConnectionFactory;
     }
     
     public async Task<CurrencyRate> GetCurrencyRateAsync(DateTime date, CancellationToken cancellationToken)
@@ -26,8 +20,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
                            WHERE date = @date
                            """;
 
-        using var connection = GetConnection();
-        
+        using var connection = _dbConnectionFactory.CreateConnection();
         var command = new CommandDefinition(sql, date, cancellationToken: cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<CurrencyRate>(command);
     }
@@ -40,7 +33,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
                            ON CONFLICT (date, currency_code) DO NOTHING;
                            """;
 
-        using var connection = GetConnection();
+        using var connection = _dbConnectionFactory.CreateConnection();
         var command = new CommandDefinition(sql, currencyRate, cancellationToken: cancellationToken);
         await connection.ExecuteAsync(command);
     }
@@ -53,7 +46,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
                            WHERE date BETWEEN @start AND @end
                            """;
 
-        using var connection = GetConnection();
+        using var connection = _dbConnectionFactory.CreateConnection();
         var command = new CommandDefinition(sql, new { start, end }, cancellationToken: cancellationToken);
         return await connection.ExecuteScalarAsync<decimal>(command);
     }
@@ -65,7 +58,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
                            FROM currency_rates
                            """;
 
-        using var connection = GetConnection();
+        using var connection = _dbConnectionFactory.CreateConnection();
         return await connection.ExecuteScalarAsync<DateTime?>(sql);
     }
 }

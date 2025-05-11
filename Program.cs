@@ -16,6 +16,7 @@ builder.Services.AddScoped<ICurrencyRateApiClient, NBUApiClient>();
 builder.Services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 builder.Services.AddScoped<IDatabaseInitializer, PostgresDatabaseInitializer>();
 
+builder.Services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
 builder.Services.AddScoped<ICurrencyRateRepository, CurrencyRateRepository>();
 
 builder.Services.AddHostedService<CurrencyRatesFetcher>();

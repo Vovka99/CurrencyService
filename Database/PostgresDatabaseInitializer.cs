@@ -1,15 +1,14 @@
 using Dapper;
-using Npgsql;
 
 namespace CurrencyService.Database;
 
 public class PostgresDatabaseInitializer : IDatabaseInitializer
 {
-    private readonly IConfiguration _configuration;
-
-    public PostgresDatabaseInitializer(IConfiguration configuration)
+    private readonly IDbConnectionFactory _dbConnectionFactory;
+    
+    public PostgresDatabaseInitializer(IDbConnectionFactory dbConnectionFactory)
     {
-        _configuration = configuration;
+        _dbConnectionFactory = dbConnectionFactory;
     }
 
     public async Task InitializeAsync()
@@ -23,7 +22,7 @@ public class PostgresDatabaseInitializer : IDatabaseInitializer
                            )
                            """;
 
-        using var connection = new NpgsqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        using var connection = _dbConnectionFactory.CreateConnection();
         await connection.ExecuteAsync(sql);
     }
 }
