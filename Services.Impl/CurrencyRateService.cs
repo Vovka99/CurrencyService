@@ -18,7 +18,7 @@ public class CurrencyRateService : ICurrencyRateService
 
     public async Task<decimal> GetRateAsync(DateTime date, CancellationToken cancellationToken)
     {
-        var rate = await _currencyRateRepository.GetCurrencyRateAsync(date, cancellationToken);
+        var rate = await _currencyRateRepository.GetAsync(date, cancellationToken);
         
         return rate?.Rate ?? 0;
     }
@@ -30,7 +30,7 @@ public class CurrencyRateService : ICurrencyRateService
             end = DateTime.UtcNow.Date;
         }
 
-        return await _currencyRateRepository.GetAverageRateAsync(start, end, cancellationToken);
+        return await _currencyRateRepository.GetAverageAsync(start, end, cancellationToken);
     }
 
     public async Task SyncRatesAsync(CancellationToken cancellationToken)
@@ -43,11 +43,7 @@ public class CurrencyRateService : ICurrencyRateService
         if (start <= end)
         {
             var rates = await _currencyRateApiClient.GetCurrencyRatesAsync(start, end);
-
-            foreach (var rate in rates)
-            {
-                await _currencyRateRepository.AddCurrencyRateAsync(rate, cancellationToken);
-            }
+            await _currencyRateRepository.AddAsync(rates, cancellationToken);
         }
     }
 }

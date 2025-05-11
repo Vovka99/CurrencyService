@@ -12,7 +12,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
         _dbConnectionFactory = dbConnectionFactory;
     }
     
-    public async Task<CurrencyRate> GetCurrencyRateAsync(DateTime date, CancellationToken cancellationToken)
+    public async Task<CurrencyRate> GetAsync(DateTime date, CancellationToken cancellationToken)
     {
         const string sql = """
                            SELECT date, rate, currency_code
@@ -25,7 +25,7 @@ public class CurrencyRateRepository : ICurrencyRateRepository
         return await connection.QuerySingleOrDefaultAsync<CurrencyRate>(command);
     }
 
-    public async Task AddCurrencyRateAsync(CurrencyRate currencyRate, CancellationToken cancellationToken)
+    public async Task AddAsync(IEnumerable<CurrencyRate> currencyRates, CancellationToken cancellationToken)
     {
         const string sql = """
                            INSERT INTO currency_rates (date, rate, currency_code)
@@ -34,11 +34,11 @@ public class CurrencyRateRepository : ICurrencyRateRepository
                            """;
 
         using var connection = _dbConnectionFactory.CreateConnection();
-        var command = new CommandDefinition(sql, currencyRate, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, currencyRates, cancellationToken: cancellationToken);
         await connection.ExecuteAsync(command);
     }
     
-    public async Task<decimal> GetAverageRateAsync(DateTime start, DateTime end, CancellationToken cancellationToken)
+    public async Task<decimal> GetAverageAsync(DateTime start, DateTime end, CancellationToken cancellationToken)
     {
         const string sql = """
                            SELECT AVG(rate)
