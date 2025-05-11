@@ -36,13 +36,12 @@ public class CurrencyRateService : ICurrencyRateService
     public async Task SyncRatesAsync(CancellationToken cancellationToken)
     {
         var latestDate = await _currencyRateRepository.GetLatestDateAsync(cancellationToken);
-        
-        var start = latestDate?.AddDays(1) ?? DateTime.UtcNow.Date.AddMonths(-DATE_SYNC_MONTHS);
-        var end = DateTime.UtcNow.Date;
 
-        if (start <= end)
+        var startDate = latestDate?.AddDays(1) ?? DateTime.UtcNow.Date.AddMonths(-DATE_SYNC_MONTHS);
+
+        var rates = await _currencyRateApiClient.GetCurrencyRatesAsync(startDate);
+        if (rates.Count > 0)
         {
-            var rates = await _currencyRateApiClient.GetCurrencyRatesAsync(start, end);
             await _currencyRateRepository.AddAsync(rates, cancellationToken);
         }
     }

@@ -14,8 +14,6 @@ public class CurrencyRateServiceTests
         // Arrange
         var latestDate = DateTime.UtcNow.Date.AddDays(-1);
         var expectedStart = latestDate.AddDays(1);
-        var expectedEnd = DateTime.UtcNow.Date;
-
         var expectedRates = new List<CurrencyRate> {
             new() { CurrencyCode = "USD", Date = expectedStart, Rate = 38.5m }
         };
@@ -25,7 +23,7 @@ public class CurrencyRateServiceTests
             .ReturnsAsync(latestDate);
 
         var apiMock = new Mock<ICurrencyRateApiClient>();
-        apiMock.Setup(api => api.GetCurrencyRatesAsync(expectedStart, expectedEnd))
+        apiMock.Setup(api => api.GetCurrencyRatesAsync(expectedStart, null))
             .ReturnsAsync(expectedRates);
 
         var service = new CurrencyRateService(repoMock.Object, apiMock.Object);
@@ -38,15 +36,20 @@ public class CurrencyRateServiceTests
     }
     
     [Fact]
-    public async Task SyncRatesAsync_ShouldDoNothing_WhenStartAfterEnd()
+    public async Task SyncRatesAsync_ShouldNotAdd_WhenAllRatesAreUpToDate()
     {
         // Arrange
         var today = DateTime.UtcNow.Date;
+        var expectedStart = today.AddDays(1);
+        
         var repoMock = new Mock<ICurrencyRateRepository>();
         repoMock.Setup(r => r.GetLatestDateAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(today);
 
         var apiMock = new Mock<ICurrencyRateApiClient>();
+        apiMock.Setup(api => api.GetCurrencyRatesAsync(expectedStart, null))
+            .ReturnsAsync([]);
+        
         var service = new CurrencyRateService(repoMock.Object, apiMock.Object);
 
         // Act
@@ -61,8 +64,7 @@ public class CurrencyRateServiceTests
     public async Task SyncRatesAsync_ShouldUseDefaultStartDate_WhenNoLatestDate()
     {
         // Arrange
-        var today = DateTime.UtcNow.Date;
-        var defaultStart = today.AddMonths(-3);
+        var defaultStart = DateTime.UtcNow.Date.AddMonths(-3);
         var expectedRates = new List<CurrencyRate> {
             new() { CurrencyCode = "USD", Date = defaultStart, Rate = 39.9m }
         };
@@ -72,7 +74,7 @@ public class CurrencyRateServiceTests
             .ReturnsAsync((DateTime?)null);
 
         var apiMock = new Mock<ICurrencyRateApiClient>();
-        apiMock.Setup(api => api.GetCurrencyRatesAsync(defaultStart, today))
+        apiMock.Setup(api => api.GetCurrencyRatesAsync(defaultStart, null))
             .ReturnsAsync(expectedRates);
 
         var service = new CurrencyRateService(repoMock.Object, apiMock.Object);
@@ -88,27 +90,29 @@ public class CurrencyRateServiceTests
     public async Task SyncRatesAsync_ShouldStartFromThreeMonthsAgo_WhenNoLatestDateExists()
     {
         // Arrange
-        var mockRepo = new Mock<ICurrencyRateRepository>();
-        var mockApiClient = new Mock<ICurrencyRateApiClient>();
-    
-        mockRepo
+        var expectedStart = DateTime.UtcNow.Date.AddMonths(-3);
+        var expectedRates = new List<CurrencyRate> {
+            new() { CurrencyCode = "USD", Date = expectedStart, Rate = 41m }
+        };
+        
+        var repoMock = new Mock<ICurrencyRateRepository>();
+        repoMock
             .Setup(r => r.GetLatestDateAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((DateTime?)null);
 
-        var expectedStart = DateTime.UtcNow.Date.AddMonths(-3);
-        var expectedEnd = DateTime.UtcNow.Date;
+        var apiMock = new Mock<ICurrencyRateApiClient>();
+        apiMock
+            .Setup(c => c.GetCurrencyRatesAsync(It.IsAny<DateTime>(), null))
+            .ReturnsAsync(expectedRates);
 
-        mockApiClient.Setup(c => c.GetCurrencyRatesAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()));
-
-        var service = new CurrencyRateService(mockRepo.Object, mockApiClient.Object);
+        var service = new CurrencyRateService(repoMock.Object, apiMock.Object);
 
         // Act
         await service.SyncRatesAsync(CancellationToken.None);
 
         // Assert
-        mockApiClient.Verify(c => c.GetCurrencyRatesAsync(
-            It.Is<DateTime>(start => start == expectedStart),
-            It.Is<DateTime>(end => end == expectedEnd)
+        apiMock.Verify(c => c.GetCurrencyRatesAsync(
+            It.Is<DateTime?>(start => start != null && start.Value == expectedStart), null
         ));
     }
 }
