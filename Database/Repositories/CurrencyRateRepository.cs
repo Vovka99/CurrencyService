@@ -2,7 +2,7 @@ using CurrencyService.Models;
 using Dapper;
 using Npgsql;
 
-namespace CurrencyService.Repositories;
+namespace CurrencyService.Database.Repositories;
 
 public class CurrencyRateRepository : ICurrencyRateRepository
 {

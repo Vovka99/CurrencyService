@@ -1,6 +1,6 @@
 using CurrencyService.Models;
 
-namespace CurrencyService.Repositories;
+namespace CurrencyService.Database.Repositories;
 
 public interface ICurrencyRateRepository
 {

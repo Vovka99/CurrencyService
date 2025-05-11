@@ -1,7 +1,7 @@
 using Dapper;
 using Npgsql;
 
-namespace CurrencyService.Services.Impl;
+namespace CurrencyService.Database;
 
 public class PostgresDatabaseInitializer : IDatabaseInitializer
 {

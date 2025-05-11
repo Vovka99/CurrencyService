@@ -1,6 +1,7 @@
 using CurrencyService.BackgroundServices;
+using CurrencyService.Database;
+using CurrencyService.Database.Repositories;
 using CurrencyService.HttpClients;
-using CurrencyService.Repositories;
 using CurrencyService.Services;
 using CurrencyService.Services.Impl;
 

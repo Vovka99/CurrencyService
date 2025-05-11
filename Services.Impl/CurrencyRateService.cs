@@ -1,5 +1,5 @@
+using CurrencyService.Database.Repositories;
 using CurrencyService.HttpClients;
-using CurrencyService.Repositories;
 
 namespace CurrencyService.Services.Impl;
 

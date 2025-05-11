@@ -1,4 +1,4 @@
-namespace CurrencyService.Services;
+namespace CurrencyService.Database;
 
 public interface IDatabaseInitializer
 {
